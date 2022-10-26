@@ -4,6 +4,9 @@ Simple scanning and patching for EC2 instances using AWS System Manager
 
 ## Change Log
 
+### 0.2.0
+- add CloudWatch Log Insights query definitions for errors in stdout and stderr, for both patching and scanning
+
 ### 0.1.0
 - Initial release
 

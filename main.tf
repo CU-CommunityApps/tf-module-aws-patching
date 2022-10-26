@@ -40,6 +40,34 @@ resource "aws_cloudwatch_log_group" "patching" {
   retention_in_days = var.patching_log_retention_days
 }
 
+resource "aws_cloudwatch_query_definition" "patching_stderr" {
+  name = "ssm-patching-stderr-errors"
+
+  log_group_names = [
+     var.patching_log_group_name,
+  ]
+
+  query_string = <<-EOF
+    filter @logStream like 'stderr' and @message like /(?i)Error/
+    | fields @timestamp, @message
+    | sort @timestamp desc
+  EOF
+}
+
+resource "aws_cloudwatch_query_definition" "patching_stdout" {
+  name = "ssm-patching-stdout-errors"
+
+  log_group_names = [
+     var.patching_log_group_name,
+  ]
+
+  query_string = <<-EOF
+    filter @logStream like 'stdout' and @message like /(?i)Error/
+    | fields @timestamp, @message
+    | sort @timestamp desc
+  EOF
+}
+
 resource "aws_ssm_maintenance_window_task" "patching" {
   window_id        = aws_ssm_maintenance_window.patching.id
   name             = "patching"
@@ -116,6 +144,34 @@ resource "aws_cloudwatch_log_group" "scanning" {
   name = var.scanning_log_group_name
 
   retention_in_days = var.scanning_log_retention_days
+}
+
+resource "aws_cloudwatch_query_definition" "scanning_stderr" {
+  name = "ssm-scanning-stderr-errors"
+
+  log_group_names = [
+     var.scanning_log_group_name,
+  ]
+
+  query_string = <<-EOF
+    filter @logStream like 'stderr' and @message like /(?i)Error/
+    | fields @timestamp, @message
+    | sort @timestamp desc
+  EOF
+}
+
+resource "aws_cloudwatch_query_definition" "scanning_stdout" {
+  name = "ssm-scanning-stdout-errors"
+
+  log_group_names = [
+     var.scanning_log_group_name,
+  ]
+
+  query_string = <<-EOF
+    filter @logStream like 'stdout' and @message like /(?i)Error/
+    | fields @timestamp, @message
+    | sort @timestamp desc
+  EOF
 }
 
 resource "aws_ssm_maintenance_window_task" "scanning" {
