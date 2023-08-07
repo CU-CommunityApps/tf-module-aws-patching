@@ -1,0 +1,19 @@
+---
+name: "release"
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+' # Match only a full sematic version tag, i.e. v20.15.10
+
+jobs:
+  release:
+    name: "Create release"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      # Full documentation: https://github.com/marvinpinto/action-automatic-releases
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
