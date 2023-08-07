@@ -1,3 +1,38 @@
+variable "cleanup_commands" {
+  default = [
+    "apt-get --yes autoremove"
+  ]
+}
+
+variable "cleanup_cron" {
+  default = "cron(30 7 ? * TUE *)"
+}
+
+variable "cleanup_enabled" {
+  default = false
+}
+
+variable "cleanup_log_group_create" {
+  default = true
+}
+
+variable "cleanup_log_group_name" {
+  default = "/ssm/patching-cleanup"
+}
+
+variable "cleanup_log_retention_days" {
+  default = 90
+}
+
+variable "cleanup_target_group_tag_key" {
+  default = "Patch Group"
+}
+
+variable "cleanup_target_group_tag_values" {
+  type    = list(string)
+  default = ["default"]
+}
+
 variable "patching_cron" {
   default = "cron(0 7 ? * TUE *)"
 }
