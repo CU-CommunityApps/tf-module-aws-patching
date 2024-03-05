@@ -4,6 +4,11 @@ Simple scanning and patching for EC2 instances using AWS System Manager
 
 ## Change Log
 
+### 1.0.0
+- Add `base_name` variable to use in naming resources to avoid name clashes.
+- Create maintenance window resources only if the task they implement is enabled.
+- Fix bug where scanning maintenance window was incorrectly enabled if patching was enabled.
+
 ### 0.3.0
 - Add optional maintenance window to run patching cleanup commands. By default this is not enabled. By default, this runs `apt-get --yes autoremove` the the set of commands can be customized.
 - add auto-release Github workflow

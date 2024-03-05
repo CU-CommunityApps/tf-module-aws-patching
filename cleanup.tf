@@ -3,8 +3,10 @@
 ###############################################################################
 
 resource "aws_ssm_maintenance_window" "cleanup" {
-  name        = "patching-cleanup"
-  description = "patching-cleanup window"
+  count = var.cleanup_enabled ? 1 : 0
+
+  name        = "${var.base_name}-patching-cleanup"
+  description = "patching-cleanup window for ${var.base_name}"
 
   schedule          = var.cleanup_cron
   schedule_timezone = var.maintenance_window_timezone
@@ -17,9 +19,11 @@ resource "aws_ssm_maintenance_window" "cleanup" {
 }
 
 resource "aws_ssm_maintenance_window_target" "cleanup" {
-  window_id     = aws_ssm_maintenance_window.cleanup.id
-  name          = "ssm-patching-cleanup-target"
-  description   = "Targets for SSM patching cleanup"
+  count = var.cleanup_enabled ? 1 : 0
+
+  window_id     = aws_ssm_maintenance_window.cleanup[0].id
+  name          = "${var.base_name}-ssm-patching-cleanup-target"
+  description   = "Targets for SSM patching cleanup for ${var.base_name}"
   resource_type = "INSTANCE"
 
   targets {
@@ -29,7 +33,7 @@ resource "aws_ssm_maintenance_window_target" "cleanup" {
 }
 
 resource "aws_cloudwatch_log_group" "cleanup" {
-  count = var.cleanup_log_group_create ? 1 : 0
+  count = var.cleanup_log_group_create && var.cleanup_enabled ? 1 : 0
 
   name = var.cleanup_log_group_name
 
@@ -37,7 +41,9 @@ resource "aws_cloudwatch_log_group" "cleanup" {
 }
 
 resource "aws_cloudwatch_query_definition" "cleanup_stderr" {
-  name = "ssm-patching-cleanup-stderr-errors"
+  count = var.cleanup_log_group_create && var.cleanup_enabled ? 1 : 0
+
+  name = "${var.base_name}-cleanup-stderr-errors"
 
   log_group_names = [
      var.cleanup_log_group_name,
@@ -51,7 +57,9 @@ resource "aws_cloudwatch_query_definition" "cleanup_stderr" {
 }
 
 resource "aws_cloudwatch_query_definition" "cleanup_stdout" {
-  name = "ssm-patching-cleanup-stdout-errors"
+  count = var.cleanup_log_group_create && var.cleanup_enabled ? 1 : 0
+
+  name = "${var.base_name}-cleanup-stdout-errors"
 
   log_group_names = [
      var.cleanup_log_group_name,
@@ -65,9 +73,11 @@ resource "aws_cloudwatch_query_definition" "cleanup_stdout" {
 }
 
 resource "aws_ssm_maintenance_window_task" "cleanup" {
-  window_id        = aws_ssm_maintenance_window.cleanup.id
-  name             = "patching-cleanup"
-  description      = "patching-cleanup"
+  count = var.cleanup_enabled ? 1 : 0
+
+  window_id        = aws_ssm_maintenance_window.cleanup[0].id
+  name             = "${var.base_name}-patching-cleanup"
+  description      = "patching-cleanup for ${var.base_name}"
   max_concurrency  = 999
   max_errors       = 999
   priority         = 1
@@ -77,7 +87,7 @@ resource "aws_ssm_maintenance_window_task" "cleanup" {
 
   targets {
     key    = "WindowTargetIds"
-    values = [aws_ssm_maintenance_window_target.cleanup.id]
+    values = [aws_ssm_maintenance_window_target.cleanup[0].id]
   }
 
   task_invocation_parameters {

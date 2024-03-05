@@ -1,3 +1,9 @@
+variable "base_name" {
+  description = "The base name for the resources"
+  type        = string
+  default     = "generic"
+}
+
 variable "cleanup_commands" {
   default = [
     "apt-get --yes autoremove"
